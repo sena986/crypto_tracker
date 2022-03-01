@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHouse, faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
 import { Helmet } from "react-helmet";
 import { useQuery } from "react-query";
 import {
@@ -11,7 +13,9 @@ import {
 import styled from "styled-components";
 import { fetchCoinInfo, fetchCoinTickers } from "../api";
 import Chart from "./Chart";
-import Price from "./Price";
+import Market from "./Market";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { isDarkAtom } from "../atom";
 
 const Title = styled.h1`
   font-size: 48px;
@@ -31,15 +35,21 @@ const Container = styled.div`
 
 const Header = styled.header`
   height: 15vh;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
+  a {
+    position: absolute;
+    top: 25%;
+    left: 20px;
+  }
 `;
 
 const Overview = styled.div`
   display: flex;
   justify-content: space-between;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: ${(props) => props.theme.cardBgColor};
   padding: 10px 20px;
   border-radius: 10px;
 `;
@@ -72,7 +82,7 @@ const Tab = styled.span<{ isActive: boolean }>`
   text-transform: uppercase;
   font-size: 12px;
   font-weight: 400;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: ${(props) => props.theme.cardBgColor};
   border-radius: 10px;
   color: ${(props) =>
     props.isActive ? props.theme.accentColor : props.theme.textColor};
@@ -80,6 +90,13 @@ const Tab = styled.span<{ isActive: boolean }>`
     padding: 7px 0px;
     display: block;
   }
+`;
+
+const DarkmodeTab = styled(FontAwesomeIcon)`
+  cursor: pointer;
+  position: absolute;
+  right: 20px;
+  top: 25%;
 `;
 
 interface RouteParams {
@@ -161,6 +178,9 @@ function Coin() {
       refetchInterval: 5000,
     }
   );
+  const isDark = useRecoilValue(isDarkAtom);
+  const setDarkAtom = useSetRecoilState(isDarkAtom);
+  const toggleDarkAtom = () => setDarkAtom((prev) => !prev);
   const loading = infoLoading || tickersLoading;
   return (
     <Container>
@@ -170,9 +190,17 @@ function Coin() {
         </title>
       </Helmet>
       <Header>
+        <Link to={"/"}>
+          <FontAwesomeIcon icon={faHouse} size={"lg"} />
+        </Link>
         <Title>
           {state?.name ? state.name : loading ? "Loading..." : infoData?.name}
         </Title>
+        {isDark ? (
+          <DarkmodeTab icon={faSun} size={"lg"} onClick={toggleDarkAtom} />
+        ) : (
+          <DarkmodeTab icon={faMoon} size={"lg"} onClick={toggleDarkAtom} />
+        )}
       </Header>
       {loading ? (
         <Loader>Loading...</Loader>
@@ -188,7 +216,7 @@ function Coin() {
               <span>{infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
-              <span>Price:</span>
+              <span>Market:</span>
               <span>${tickersData?.quotes.USD.price.toFixed(3)}</span>
             </OverviewItem>
           </Overview>
@@ -209,12 +237,12 @@ function Coin() {
               <Link to={`/${coinId}/chart`}>Chrat</Link>
             </Tab>
             <Tab isActive={priceMatch !== null}>
-              <Link to={`/${coinId}/price`}>Price</Link>
+              <Link to={`/${coinId}/price`}>Market</Link>
             </Tab>
           </Tabs>
           <Switch>
             <Route path={`/:coinId/price`}>
-              <Price />
+              <Market coinId={coinId} />
             </Route>
             <Route path={`/:coinId/chart`}>
               <Chart coinId={coinId} />

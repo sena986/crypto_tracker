@@ -1,8 +1,12 @@
+import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Helmet } from "react-helmet";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import { fetchCoins } from "../api";
+import { isDarkAtom } from "../atom";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -11,6 +15,7 @@ const Container = styled.div`
 `;
 
 const Header = styled.header`
+  position: relative;
   height: 15vh;
   display: flex;
   justify-content: center;
@@ -20,7 +25,7 @@ const Header = styled.header`
 const CoinsList = styled.ul``;
 
 const Coin = styled.li`
-  background-color: white;
+  background-color: ${(props) => props.theme.textColor};
   color: ${(props) => props.theme.bgColor};
   border-radius: 15px;
   margin-bottom: 10px;
@@ -53,6 +58,13 @@ const Img = styled.img`
   margin-right: 10px;
 `;
 
+const DarkmodeTab = styled(FontAwesomeIcon)`
+  cursor: pointer;
+  position: absolute;
+  right: 20px;
+  top: 25%;
+`;
+
 interface ICoin {
   id: string;
   name: string;
@@ -64,6 +76,9 @@ interface ICoin {
 }
 
 function Coins() {
+  const isDark = useRecoilValue(isDarkAtom);
+  const setDarkAtom = useSetRecoilState(isDarkAtom);
+  const toggleDarkAtom = () => setDarkAtom((prev) => !prev);
   const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
   return (
     <Container>
@@ -71,7 +86,12 @@ function Coins() {
         <title>Coin Info</title>
       </Helmet>
       <Header>
-        <Title>코인</Title>
+        <Title>Coin Info</Title>
+        {isDark ? (
+          <DarkmodeTab icon={faSun} size={"lg"} onClick={toggleDarkAtom} />
+        ) : (
+          <DarkmodeTab icon={faMoon} size={"lg"} onClick={toggleDarkAtom} />
+        )}
       </Header>
       {isLoading ? (
         <Loader>Loading...</Loader>
