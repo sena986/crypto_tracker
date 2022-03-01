@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/cryto_tracker/static/js/main.f999eaf3.js",
+    "index.html": "/cryto_tracker/index.html",
+    "main.f999eaf3.js.map": "/cryto_tracker/static/js/main.f999eaf3.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.f999eaf3.js"
+  ]
+}
